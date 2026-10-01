@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Souya - Giấc Mộng Giữa Ngàn Mây</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --card-bg: rgba(0, 0, 0, 0.4); 
+            --card-hover: rgba(0, 0, 0, 0.6);
+            --accent-star: #ffeaa7;
+            --accent-blue: #8c7ae6;
+            --light-blue: #a29bfe;
+            --text-light: #f1f2f6;
+            --text-dim: #dfe6e9;
+        }
+
+        * { box-sizing: border-box; }
+        body { font-family: 'Quicksand', sans-serif; margin: 0; color: var(--text-light); min-height: 100vh; position: relative; overflow-x: hidden; text-shadow: 0 1px 3px rgba(0,0,0,0.8); background: #0b132b; }
+
+        /* ================= HIỆU ỨNG NỀN ================= */
+        .sky-container, .stars-container, .clouds-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -4; pointer-events: none; }
+        .sky-layer { position: absolute; width: 100%; height: 100%; opacity: 0; transition: opacity 3s ease; }
+        .sky-sunrise { background: linear-gradient(180deg, #1b003a 0%, #fd746c 55%, #ff9068 100%); animation: cycleSunrise 240s infinite; }
+        .sky-day { background: linear-gradient(180deg, #2980b9 0%, #6dd5fa 60%, #e0f7fa 100%); animation: cycleDay 240s infinite; }
+        .sky-dusk { background: linear-gradient(180deg, #0f2027 0%, #203a43 45%, #4e4376 100%); animation: cycleDusk 240s infinite; }
+        @keyframes cycleSunrise { 0%, 15% { opacity: 0; } 22% { opacity: 1; } 30%, 100% { opacity: 0; } }
+        @keyframes cycleDay { 0%, 20% { opacity: 0; } 30%, 60% { opacity: 1; } 70%, 100% { opacity: 0; } }
+        @keyframes cycleDusk { 0%, 55% { opacity: 0; } 65% { opacity: 1; } 75%, 100% { opacity: 0; } }
+
+        .stars-container { z-index: -3; animation: hideStarsDaytime 240s infinite; }
+        .star-layer { position: absolute; width: 100%; height: 100%; background-repeat: repeat; }
+        .stars-1 { background-image: radial-gradient(1.5px 1.5px at 20px 30px, #ffffff, transparent), radial-gradient(1.5px 1.5px at 150px 120px, #ffeaa7, transparent); background-size: 200px 200px; animation: twinkle1 3s infinite alternate; }
+        .stars-2 { background-image: radial-gradient(2px 2px at 80px 70px, #ffeaa7, transparent), radial-gradient(1px 1px at 250px 90px, #ffffff, transparent); background-size: 300px 300px; animation: twinkle2 4.5s infinite alternate 1s; }
+        @keyframes hideStarsDaytime { 0%, 22% { opacity: 1; } 30%, 65% { opacity: 0; } 75%, 100% { opacity: 1; } }
+        @keyframes twinkle1 { 0% { opacity: 0.2; } 100% { opacity: 1; } }
+        @keyframes twinkle2 { 0% { opacity: 0.1; } 100% { opacity: 0.8; } }
+
+        .clouds-container { z-index: -2; overflow: hidden; }
+        .cloud { position: absolute; left: 0; background: #ffffff; border-radius: 200px; filter: blur(4px); opacity: 0; animation: driftCloud linear infinite; }
+        .cloud::before, .cloud::after { content: ''; position: absolute; background: #ffffff; border-radius: 50%; }
+        .cloud.type-1 { width: 220px; height: 70px; }
+        .cloud.type-1::before { width: 100px; height: 100px; top: -45px; left: 30px; }
+        .cloud.type-1::after { width: 120px; height: 120px; top: -55px; left: 90px; }
+        .cloud.type-2 { width: 280px; height: 80px; }
+        .cloud.type-2::before { width: 110px; height: 110px; top: -50px; left: 40px; }
+        .cloud.type-2::after { width: 150px; height: 150px; top: -75px; left: 110px; }
+        @keyframes driftCloud { 0% { transform: translateX(110vw) scale(var(--scale)); opacity: 0; } 5% { opacity: var(--opacity); } 95% { opacity: var(--opacity); } 100% { transform: translateX(-50vw) scale(var(--scale)); opacity: 0; } }
+
+        /* ================= GIAO DIỆN CHÍNH ================= */
+        header { background: rgba(0, 0, 0, 0.2); backdrop-filter: blur(15px); padding: 20px 15px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1); position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center;}
+        
+        .user-top-bar { position: absolute; top: 15px; right: 15px; display: flex; align-items: center; gap: 10px; }
+        .user-avatar-btn { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; cursor: pointer; border: 2px solid var(--light-blue); background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; font-size: 14px; overflow: hidden; transition: 0.3s; }
+        .user-avatar-btn:hover { transform: scale(1.1); box-shadow: 0 0 10px var(--light-blue); }
+        .login-text-btn { background: transparent; border: 1px solid var(--accent-star); color: var(--accent-star); padding: 5px 12px; border-radius: 20px; cursor: pointer; font-size: 12px; font-weight: bold; transition: 0.3s; text-shadow: none; }
+        .login-text-btn:hover { background: var(--accent-star); color: #000; }
+
+        .logo-title { font-size: 28px; font-weight: 700; margin: 0; background: linear-gradient(45deg, #a29bfe, #ff9a9e, #ffeaa7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.6)); }
+        .slogan { font-size: 14px; margin: 5px 0 15px 0; font-style: italic; color: var(--text-light); }
+
+        .search-bar { display: flex; justify-content: center; gap: 8px; margin-bottom: 15px; }
+        .search-bar input { padding: 10px 16px; width: 220px; border-radius: 25px; border: 1px solid rgba(255,255,255,0.3); background: rgba(0, 0, 0, 0.4); color: white; outline: none; font-family: 'Quicksand', sans-serif; text-shadow: none; transition: 0.3s; }
+        .search-bar input:focus { box-shadow: 0 0 10px rgba(255, 255, 255, 0.2); background: rgba(0, 0, 0, 0.6); border-color: var(--light-blue); }
+
+        .game-menu { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; max-width: 450px; margin: 0 auto; }
+        button { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(5px); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 10px 14px; border-radius: 20px; cursor: pointer; font-weight: 600; font-size: 13px; font-family: 'Quicksand', sans-serif; transition: 0.2s; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+        button:hover { background: rgba(255, 255, 255, 0.25); transform: translateY(-2px); border-color: white;}
+        
+        .mod-login-btn { position: fixed; bottom: 15px; left: 15px; width: 35px; height: 35px; border-radius: 50%; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); color: var(--text-dim); display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 9999; opacity: 0.3; transition: 0.3s; padding: 0; box-shadow: none;}
+        .mod-login-btn:hover { opacity: 1; background: rgba(0,0,0,0.8); border-color: var(--light-blue); }
+        .mod-login-btn.active { opacity: 1; background: #2ecc71; color: white; border-color: white; }
+
+        .tags-wrapper { position: relative; z-index: 2; padding: 15px 10px 5px 10px; max-width: 1000px; margin: 0 auto; }
+        .tags-title { font-size: 12px; color: white; margin-left: 10px; margin-bottom: 5px; display: block; opacity: 0.8;}
+        .tags-container { display: flex; gap: 8px; overflow-x: auto; white-space: nowrap; padding-bottom: 10px; }
+        .tags-container::-webkit-scrollbar { height: 4px; }
+        .tags-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.4); border-radius: 10px; }
+        .tag-btn { flex: 0 0 auto; background: var(--card-bg); border: 1px solid rgba(255,255,255,0.2); padding: 6px 14px; font-size: 12px; border-radius: 18px; }
+        .tag-btn:hover, .tag-btn.active { background: white; color: #000; font-weight: bold; text-shadow: none; }
+
+        .form-panel { background: rgba(0,0,0,0.7); backdrop-filter: blur(15px); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.2); display: flex; flex-direction: column; gap: 12px; position: relative; z-index: 2; margin: 10px auto; max-width: 500px; }
+        .form-panel input[type="text"], .form-panel input[type="password"], .form-panel textarea { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(0, 0, 0, 0.5); color: white; font-family: 'Quicksand', sans-serif; text-shadow: none; box-sizing: border-box;}
+        .hidden { display: none !important; }
+        
+        .img-upload-box { border: 1px dashed var(--light-blue); padding: 15px; border-radius: 10px; text-align: center; cursor: pointer; background: rgba(255,255,255,0.05); transition: 0.2s; }
+        .img-upload-box:hover { background: rgba(255,255,255,0.15); }
+        .preview-img { max-width: 100%; height: 120px; object-fit: cover; border-radius: 8px; display: none; margin-top: 10px; }
+        .avatar-preview { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; display: none; margin: 10px auto; border: 2px solid var(--accent-star); }
+
+        .char-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; padding: 15px; position: relative; z-index: 2; }
+        .char-card { background: var(--card-bg); backdrop-filter: blur(10px); padding: 15px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); cursor: pointer; text-align: center; border: 1px solid rgba(255, 255, 255, 0.1); transition: 0.3s; position: relative; }
+        .char-card:hover { transform: translateY(-5px); background: var(--card-hover); border-color: var(--accent-star); }
+        .char-img { width: 100%; height: 140px; object-fit: cover; border-radius: 10px; margin-bottom: 10px; background: rgba(0,0,0,0.3); }
+        .char-card h3 { color: var(--accent-star); margin: 0 0 8px 0; font-size: 16px; }
+        .char-tags-sm { color: var(--text-dim); font-size: 11px; font-weight: 600; margin: 0; }
+
+        .control-btn { position: absolute; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 5; text-shadow: none; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+        .delete-btn { top: 8px; right: 8px; background: #e74c3c; }
+        .edit-btn { top: 8px; right: 38px; background: #3498db; }
+        
+        .fav-btn { position: absolute; top: 8px; left: 8px; font-size: 20px; background: none; border: none; cursor: pointer; z-index: 5; box-shadow: none; padding: 0; transition: 0.2s; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); }
+        .fav-btn:hover { transform: scale(1.2); }
+
+        .comment-section { background: var(--card-bg); backdrop-filter: blur(10px); margin: 15px; padding: 15px; border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.1); position: relative; z-index: 2; }
+        .cmt-input-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+        .cmt-item { border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 8px; font-size: 13px; margin: 8px 0; word-break: break-word; display: flex; gap: 10px; align-items: flex-start; }
+        .cmt-avatar { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; background: rgba(0,0,0,0.5); border: 1px solid var(--light-blue); flex-shrink: 0;}
+        .cmt-content { flex: 1; }
+        .cmt-name { font-weight: bold; color: var(--accent-star); font-size: 12px; margin-bottom: 2px;}
+        .del-cmt-btn { background: transparent; color: #e74c3c; border: none; font-size: 14px; cursor: pointer; padding: 0 5px; box-shadow: none; text-shadow: none; float: right;}
+
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; animation: fadeIn 0.3s forwards; }
+        @keyframes fadeIn { to { opacity: 1; } }
+        .modal-content { background: rgba(20, 25, 40, 0.95); border: 1px solid rgba(255,255,255,0.2); padding: 25px 20px; border-radius: 20px; width: 90%; max-width: 500px; max-height: 85vh; overflow-y: auto; position: relative; text-shadow: none; }
+        .close { position: absolute; top: 12px; right: 18px; font-size: 26px; color: var(--text-dim); cursor: pointer; }
+        .chat-btn { display: inline-block; padding: 10px 20px; background: linear-gradient(45deg, #a29bfe, #ffeaa7); color: #000; text-decoration: none; border-radius: 20px; font-weight: 700; margin-top: 15px; text-shadow: none; }
+        .modal-img { width: 100%; max-height: 200px; object-fit: cover; border-radius: 12px; margin-bottom: 15px; display: none; }
+    </style>
+</head>
+<body>
+
+    <!-- HIỆU ỨNG NỀN -->
+    <div class="sky-container"><div class="sky-layer sky-sunrise"></div><div class="sky-layer sky-day"></div><div class="sky-layer sky-dusk"></div></div>
+    <div class="stars-container"><div class="star-layer stars-1"></div><div class="star-layer stars-2"></div></div>
+    <div class="clouds-container">
+        <div class="cloud type-1" style="top: 12%; --scale: 0.8; --opacity: 0.3; animation-duration: 70s; animation-delay: -10s;"></div>
+        <div class="cloud type-2" style="top: 35%; --scale: 1.2; --opacity: 0.15; animation-duration: 120s; animation-delay: -45s;"></div>
+        <div class="cloud type-1" style="top: 60%; --scale: 0.6; --opacity: 0.4; animation-duration: 85s; animation-delay: -30s;"></div>
+        <div class="cloud type-2" style="top: 25%; --scale: 1; --opacity: 0.2; animation-duration: 95s; animation-delay: -75s;"></div>
+        <div class="cloud type-1" style="top: 75%; --scale: 1.4; --opacity: 0.1; animation-duration: 140s; animation-delay: -20s;"></div>
+    </div>
+
+    <!-- HEADER -->
+    <header>
+        <div class="user-top-bar" id="userTopBar">
+            <button class="login-text-btn" onclick="openAuthModal()">Đăng Nhập</button>
+        </div>
+        <h1 class="logo-title" style="margin-top: 15px;">🌙 Souya - Giấc Mộng Giữa Ngàn Mây ☁️</h1>
+        <p class="slogan">"Nơi thả hồn cho giấc mộng dài"</p>
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="🔍 Tìm tên hoặc tag...">
+            <button onclick="searchChar()" style="background: var(--accent-blue); border:none;">Tìm</button>
+        </div>
+        <div class="game-menu">
+            <button onclick="randomChar()">🎲 Random Char</button>
+            <button onclick="openWhisperJar()">🏺 Hũ Thì Thầm</button>
+            <button onclick="openTarot()">🔮 Xem Tarot Chuẩn</button>
+            <button onclick="openLoveGame()">💖 Bói Duyên Phận</button>
+            <button onclick="openGachaGame()">🎡 Quay Gacha</button>
+            <button onclick="open8BallGame()">🔮 Cầu Thủy Tinh</button>
+        </div>
+    </header>
+
+    <button class="mod-login-btn" id="modLoginBtn" onclick="toggleAdminPanel()" title="Mod Access">🔒</button>
+
+    <!-- THANH TAG -->
+    <div class="tags-wrapper">
+        <span class="tags-title">↔️ Vuốt ngang để chọn tag:</span>
+        <section class="tags-container" id="tagsContainer">
+            <button class="tag-btn active" onclick="filterByTag('All', this)">Tất cả</button>
+            <button class="tag-btn" onclick="filterByTag('BL', this)">BL</button>
+            <button class="tag-btn" onclick="filterByTag('BG', this)">BG</button>
+            <button class="tag-btn" onclick="filterByTag('GL', this)">GL</button>
+            <button class="tag-btn" onclick="filterByTag('Ngọt', this)">Ngọt</button>
+            <button class="tag-btn" onclick="filterByTag('Ngược', this)">Ngược</button>
+            <button class="tag-btn" onclick="filterByTag('R18/NSFW', this)">R18/NSFW</button>
+        </section>
+    </div>
+
+    <!-- Khung Thêm Char (Mod) -->
+    <section id="adminPanel" class="form-panel hidden" style="border-color:#2ecc71;">
+        <h3 id="adminTitle" style="color: #2ecc71; margin: 0;">✨ Thêm Nhân Vật Mới (Mod) ✨</h3>
+        <input type="text" id="newCharName" placeholder="Tên nhân vật">
+        <label class="img-upload-box">
+            <span style="font-size:13px; color:var(--light-blue);">+ Nhấn hoặc thả File Ảnh Char vào đây</span>
+            <input type="file" id="newCharImage" accept="image/*" style="display:none;" onchange="previewImage(event, 'char')">
+            <img id="charImagePreview" class="preview-img" src="">
+        </label>
+        <input type="text" id="newCharTags" placeholder="Các Tag (cách nhau dấu phẩy: BL, Ngọt, HE...)">
+        <textarea id="newCharDesc" placeholder="Viết backstory, cốt truyện, tính cách sơ sơ..."></textarea>
+        <input type="text" id="newCharLink" placeholder="Link chat với Char">
+        <button onclick="submitChar()" style="background:#2ecc71; border:none; font-size:15px;">Lưu Nhân Vật</button>
+        <button id="adminCancelBtn" onclick="cancelEdit()" class="hidden" style="background:#e74c3c; border:none;">Hủy Chỉnh Sửa</button>
+    </section>
+
+    <main id="charGrid" class="char-grid"></main>
+
+    <!-- Bình luận chung -->
+    <section class="comment-section">
+        <h3 style="color: var(--accent-star); margin-top: 0; font-size: 16px;">💬 Góc trò chuyện chung</h3>
+        <div class="cmt-input-group">
+            <input type="text" id="genCmtName" placeholder="Tên của bạn (Để trống = Ẩn danh)" style="width:100%; padding:8px; border-radius:10px; border:1px solid rgba(255,255,255,0.2); background:rgba(0,0,0,0.5); color:white;">
+            <textarea id="genCommentInput" placeholder="Để lại lời nhắn cho ngàn mây..." style="width:100%; height:60px; padding:8px; border-radius:10px; border:1px solid rgba(255,255,255,0.2); background:rgba(0,0,0,0.5); color:white;"></textarea>
+        </div>
+        <button onclick="addGeneralComment()" style="background:var(--accent-blue); border:none;">Gửi bình luận</button>
+        <div id="genCommentList" style="margin-top: 15px;"></div>
+    </section>
+
+    <!-- MODAL: Auth (Đăng nhập / Đăng ký) -->
+    <div id="authModal" class="modal hidden">
+        <div class="modal-content form-panel" style="margin:0;">
+            <span class="close" onclick="closeModal('authModal')">&times;</span>
+            <h2 id="authTitle" style="color:var(--accent-star); margin:0 0 10px 0; text-align:center;">Đăng Nhập</h2>
+            <input type="text" id="authEmail" placeholder="Email của bạn (VD: a@gmail.com)">
+            <input type="password" id="authPass" placeholder="Mật khẩu tự đặt">
+            <button id="authActionBtn" onclick="handleAuth()" style="background:var(--accent-blue); font-size:15px; margin-top:5px;">Đăng Nhập</button>
+            <p style="text-align:center; font-size:12px; color:var(--text-dim); margin-top:10px;">
+                <span id="authSwitchText">Chưa có tài khoản?</span> 
+                <a href="#" onclick="switchAuthMode()" style="color:var(--light-blue); text-decoration:none; font-weight:bold;">Chuyển đổi ngay</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- MODAL: User Profile -->
+    <div id="profileModal" class="modal hidden">
+        <div class="modal-content form-panel" style="margin:0;">
+            <span class="close" onclick="closeModal('profileModal')">&times;</span>
+            <h2 style="color:var(--light-blue); margin:0 0 10px 0; text-align:center;">Hồ Sơ Của Tôi</h2>
+            
+            <label class="img-upload-box" style="padding:10px;">
+                <span style="font-size:12px; color:var(--text-dim);">Đổi Avatar (Nhấn vào)</span>
+                <input type="file" accept="image/*" style="display:none;" onchange="previewImage(event, 'user')">
+                <img id="userAvatarPreview" class="avatar-preview" src="">
+            </label>
+
+            <input type="text" id="profileName" placeholder="Tên hiển thị của bạn">
+            <button onclick="saveProfile()" style="background:#2ecc71;">Lưu Hồ Sơ</button>
+            
+            <h4 style="margin:15px 0 5px 0; color:var(--accent-star);">❤️ Char Đã Lưu:</h4>
+            <div id="favCharList" style="display:flex; flex-wrap:wrap; gap:10px; font-size:12px;"></div>
+
+            <hr style="border:0; height:1px; background:rgba(255,255,255,0.1); margin:15px 0;">
+            <button onclick="logout()" style="background:transparent; border:1px solid #e74c3c; color:#e74c3c; width:100%;">Đăng Xuất</button>
+        </div>
+    </div>
+
+    <!-- MODAL: Chi tiết Char -->
+    <div id="charModal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('charModal')">&times;</span>
+            <img id="modalImg" class="modal-img" src="">
+            <h2 id="modalName" style="color: var(--accent-star); margin-top:0;">Tên nhân vật</h2>
+            <div id="modalTags" style="color: var(--light-blue); font-weight: bold; margin-bottom: 12px; font-size: 13px;"></div>
+            <p id="modalBackstory" style="line-height: 1.5; font-size: 14px;">Nội dung...</p>
+            <a id="modalLink" href="#" target="_blank" class="chat-btn">💬 Trò chuyện ngay</a>
+            <hr style="border:0; height:1px; background:rgba(255,255,255,0.1); margin:15px 0;">
+            <div>
+                <h4 style="color: var(--accent-star); margin:0 0 10px 0;">Bình luận về Char này</h4>
+                <div class="cmt-input-group">
+                    <input type="text" id="charCmtName" placeholder="Tên của bạn (Để trống = Ẩn danh)" style="width:100%; padding:8px; border-radius:10px; border:1px solid rgba(255,255,255,0.2); background:rgba(0,0,0,0.5); color:white;">
+                    <textarea id="charCommentInput" placeholder="Viết nhận xét..." style="width:100%; height:50px; padding:8px; border-radius:10px; border:1px solid rgba(255,255,255,0.2); background:rgba(0,0,0,0.5); color:white;"></textarea>
+                </div>
+                <button onclick="addCharComment()" style="background:var(--accent-blue); border:none;">Gửi bình luận</button>
+                <div id="modalCommentsList" style="margin-top: 15px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MINIGAMES -->
+    <div id="whisperModal" class="modal hidden"><div class="modal-content" style="text-align:center;"><span class="close" onclick="closeModal('whisperModal')">&times;</span><h3 style="color:var(--accent-star);">🏺 Hũ Thư Thì Thầm</h3><div style="font-size:50px; cursor:pointer;" onclick="drawWhisperQuote()">🏺</div><button onclick="drawWhisperQuote()">Rút thư</button><div id="whisperResult"></div></div></div>
+    <div id="tarotModal" class="modal hidden"><div class="modal-content" style="text-align:center;"><span class="close" onclick="closeModal('tarotModal')">&times;</span><h3 style="color:var(--light-blue);">🔮 Trải Bài Tarot</h3><button onclick="drawTarotSpread()">Rút Bài</button><div id="tarotResultContainer"></div></div></div>
+    <div id="loveModal" class="modal hidden"><div class="modal-content" style="text-align:center;"><span class="close" onclick="closeModal('loveModal')">&times;</span><h3 style="color:#ff7675;">💖 Bốc Quẻ Duyên Phận</h3><input type="text" id="loveUserName" placeholder="Tên của bạn..." style="padding:8px; border-radius:10px; background:rgba(0,0,0,0.5); color:white; margin-bottom:10px;"><br><button onclick="calculateLove()">Kiểm Tra %</button><div id="loveResultContainer"></div></div></div>
+    <div id="gachaModal" class="modal hidden"><div class="modal-content" style="text-align:center;"><span class="close" onclick="closeModal('gachaModal')">&times;</span><h3 style="color:var(--accent-star);">🎡 Quay Gacha</h3><button onclick="spinGacha()">✨ Quay ✨</button><div id="gachaResultContainer"></div></div></div>
+    <div id="ballModal" class="modal hidden"><div class="modal-content" style="text-align:center;"><span class="close" onclick="closeModal('ballModal')">&times;</span><h3 style="color:#a29bfe;">🔮 Quả Cầu Thủy Tinh</h3><input type="text" id="ballQuestion" placeholder="Nhập thắc mắc..." style="padding:8px; border-radius:10px; background:rgba(0,0,0,0.5); color:white; margin-bottom:10px;"><br><div style="font-size:60px; cursor:pointer;" onclick="ask8Ball()">🔮</div><button onclick="ask8Ball()">Hỏi</button><div id="ballResultContainer"></div></div></div>
+
+    <!-- ================= FIREBASE SDK (TƯỜNG LỬA / DATABASE) ================= -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-analytics.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDY39PT6-S4Y5OiisFRxTHtNeSBDLKGmXY",
+            authDomain: "souya-web.firebaseapp.com",
+            databaseURL: "https://souya-web-default-rtdb.firebaseio.com",
+            projectId: "souya-web",
+            storageBucket: "souya-web.firebasestorage.app",
+            messagingSenderId: "690755960511",
+            appId: "1:690755960511:web:64dd3a782257824f14500a",
+            measurementId: "G-ZGB3PLWJ5J"
+        };
+
+        // Khởi tạo Firebase và gán vào window để sử dụng toàn cục
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        
+        window.firebaseApp = app;
+        window.firebaseAnalytics = analytics;
+        console.log("🔥 Firebase đã khởi tạo thành công!");
+    </script>
+
+    <!-- ================= LOGIC JAVASCRIPT ================= -->
+    <script>
+        let characters = JSON.parse(localStorage.getItem('souya_chars')) || [];
+        let generalComments = JSON.parse(localStorage.getItem('souya_gen_cmts')) || [];
+        let users = JSON.parse(localStorage.getItem('souya_users')) || [];
+        let currentUserEmail = localStorage.getItem('souya_current_user') || null;
+        
+        let isAdmin = false;
+        let editingCharIndex = null;
+        let charImageBase64 = "";
+        let userImageBase64 = "";
+        let isLoginMode = true;
+
+        function saveData() {
+            localStorage.setItem('souya_chars', JSON.stringify(characters));
+            localStorage.setItem('souya_gen_cmts', JSON.stringify(generalComments));
+            localStorage.setItem('souya_users', JSON.stringify(users));
+            if(currentUserEmail) localStorage.setItem('souya_current_user', currentUserEmail);
+            else localStorage.removeItem('souya_current_user');
+        }
+
+        function getCurrentUser() {
+            if(!currentUserEmail) return null;
+            return users.find(u => u.email === currentUserEmail) || null;
+        }
+
+        /* ===== HỆ THỐNG TÀI KHOẢN ===== */
+        function checkAuthUI() {
+            const topBar = document.getElementById("userTopBar");
+            const user = getCurrentUser();
+            
+            if (user) {
+                let avatarHtml = user.avatar ? `<img src="${user.avatar}" style="width:100%;height:100%;object-fit:cover;">` : `👤`;
+                topBar.innerHTML = `<div class="user-avatar-btn" onclick="openProfileModal()" title="Hồ sơ cá nhân">${avatarHtml}</div>`;
+                document.getElementById("genCmtName").value = user.displayName;
+                document.getElementById("genCmtName").disabled = true;
+            } else {
+                topBar.innerHTML = `<button class="login-text-btn" onclick="openAuthModal()">Đăng Nhập</button>`;
+                document.getElementById("genCmtName").value = "";
+                document.getElementById("genCmtName").disabled = false;
+            }
+        }
+
+        function openAuthModal() {
+            isLoginMode = true; updateAuthUI();
+            document.getElementById("authEmail").value = "";
+            document.getElementById("authPass").value = "";
+            document.getElementById("authModal").classList.remove("hidden");
+        }
+        
+        function switchAuthMode() {
+            isLoginMode = !isLoginMode; updateAuthUI();
+        }
+        
+        function updateAuthUI() {
+            document.getElementById("authTitle").innerText = isLoginMode ? "Đăng Nhập" : "Đăng Ký Tài Khoản";
+            document.getElementById("authActionBtn").innerText = isLoginMode ? "Đăng Nhập" : "Đăng Ký";
+            document.getElementById("authSwitchText").innerText = isLoginMode ? "Chưa có tài khoản?" : "Đã có tài khoản?";
+        }
+
+        function handleAuth() {
+            const email = document.getElementById("authEmail").value.trim().toLowerCase();
+            const pass = document.getElementById("authPass").value.trim();
+            if(!email || !pass) return alert("Vui lòng nhập đủ thông tin!");
+
+            if (isLoginMode) {
+                let user = users.find(u => u.email === email && u.password === pass);
+                if(user) {
+                    currentUserEmail = email; saveData(); checkAuthUI();
+                    closeModal("authModal"); renderChars();
+                } else alert("Sai email hoặc mật khẩu!");
+            } else {
+                if(users.find(u => u.email === email)) return alert("Email này đã được sử dụng!");
+                let newUser = { email: email, password: pass, displayName: email.split('@')[0], avatar: "", favorites: [] };
+                users.push(newUser); currentUserEmail = email; saveData(); checkAuthUI();
+                closeModal("authModal"); alert("Đăng ký thành công!"); renderChars();
+            }
+        }
+
+        function openProfileModal() {
+            const user = getCurrentUser(); if(!user) return;
+            document.getElementById("profileName").value = user.displayName;
+            userImageBase64 = user.avatar;
+            const preview = document.getElementById("userAvatarPreview");
+            if(user.avatar) { preview.src = user.avatar; preview.style.display = "block"; } 
+            else { preview.style.display = "none"; }
+            
+            const favBox = document.getElementById("favCharList"); favBox.innerHTML = "";
+            let hasFav = false;
+            user.favorites.forEach(charId => {
+                let char = characters.find(c => c.id === charId);
+                if(char) {
+                    hasFav = true;
+                    favBox.innerHTML += `<div style="background:rgba(255,255,255,0.1); padding:5px 10px; border-radius:15px; border:1px solid var(--light-blue);">${char.name}</div>`;
+                }
+            });
+            if(!hasFav) favBox.innerHTML = "<span style='color:gray;'>Chưa lưu nhân vật nào.</span>";
+            document.getElementById("profileModal").classList.remove("hidden");
+        }
+
+        function saveProfile() {
+            let user = getCurrentUser(); if(!user) return;
+            user.displayName = document.getElementById("profileName").value.trim() || user.email.split('@')[0];
+            user.avatar = userImageBase64;
+            saveData(); checkAuthUI(); closeModal("profileModal"); alert("Lưu hồ sơ thành công!");
+            renderGeneralComments();
+        }
+
+        function logout() { currentUserEmail = null; saveData(); checkAuthUI(); closeModal("profileModal"); renderChars(); }
+
+        function previewImage(event, type) {
+            const file = event.target.files[0];
+            if (file) {
+                const r = new FileReader();
+                r.onload = function(e) {
+                    if(type === 'char') { charImageBase64 = e.target.result; document.getElementById('charImagePreview').src = charImageBase64; document.getElementById('charImagePreview').style.display = 'block'; }
+                    if(type === 'user') { userImageBase64 = e.target.result; document.getElementById('userAvatarPreview').src = userImageBase64; document.getElementById('userAvatarPreview').style.display = 'block'; }
+                }; r.readAsDataURL(file);
+            }
+        }
+
+        /* ===== RENDER NHÂN VẬT & YÊU THÍCH ===== */
+        function renderChars(charArray = characters) {
+            const grid = document.getElementById("charGrid"); grid.innerHTML = "";
+            const user = getCurrentUser();
+            
+            if (charArray.length === 0) { grid.innerHTML = "<div style='text-align:center; grid-column: 1/-1; color:gray;'>Chưa có nhân vật nào.</div>"; return; }
+            
+            charArray.forEach((char) => {
+                let cIndex = characters.findIndex(c => c.id === char.id);
+                const card = document.createElement("div"); card.className = "char-card";
+                
+                let isFav = user && user.favorites.includes(char.id);
+                let favBtn = `<button class="fav-btn" onclick="event.stopPropagation(); toggleFav('${char.id}')">${isFav ? '❤️' : '🤍'}</button>`;
+
+                let controls = "";
+                if (isAdmin) {
+                    controls = `<button class="control-btn delete-btn" onclick="event.stopPropagation(); deleteChar(${cIndex})">✕</button>
+                                <button class="control-btn edit-btn" onclick="event.stopPropagation(); editChar(${cIndex})">✏️</button>`;
+                }
+
+                let imgHtml = char.image ? `<img src="${char.image}" class="char-img">` : "";
+                card.innerHTML = `${favBtn} ${controls} ${imgHtml} <h3>${char.name}</h3><p class="char-tags-sm">#${char.tags.join(" #")}</p>`;
+                card.onclick = () => openCharDetails(char, cIndex);
+                grid.appendChild(card);
+            });
+        }
+
+        function toggleFav(charId) {
+            let user = getCurrentUser();
+            if(!user) return alert("Vui lòng đăng nhập để lưu nhân vật!");
+            let idx = user.favorites.indexOf(charId);
+            if(idx === -1) user.favorites.push(charId); else user.favorites.splice(idx, 1);
+            saveData(); renderChars();
+        }
+
+        /* ===== TÌM KIẾM & LỌC TAG ===== */
+        function searchChar() {
+            const q = document.getElementById("searchInput").value.toLowerCase();
+            renderChars(characters.filter(c => c.name.toLowerCase().includes(q) || c.tags.some(t => t.toLowerCase().includes(q))));
+        }
+        function filterByTag(tag, btn) {
+            document.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
+            if(btn) btn.classList.add('active');
+            if (tag === 'All') renderChars();
+            else renderChars(characters.filter(c => c.tags.some(t => t.toLowerCase() === tag.toLowerCase())));
+        }
+
+        /* ===== ADMIN CONTROL ===== */
+        function toggleAdminPanel() {
+            const btn = document.getElementById("modLoginBtn");
+            if (isAdmin) { isAdmin = false; document.getElementById("adminPanel").classList.add("hidden"); btn.innerHTML = "🔒"; btn.classList.remove("active"); cancelEdit(); renderChars(); renderGeneralComments(); return; }
+            if (prompt("Mật khẩu Mod:") === "182759") { isAdmin = true; document.getElementById("adminPanel").classList.remove("hidden"); btn.innerHTML = "🔓"; btn.classList.add("active"); renderChars(); renderGeneralComments(); }
+        }
+
+        function submitChar() {
+            if (!isAdmin) return;
+            const name = document.getElementById("newCharName").value.trim();
+            const tagsInp = document.getElementById("newCharTags").value.trim();
+            const desc = document.getElementById("newCharDesc").value.trim();
+            const link = document.getElementById("newCharLink").value.trim();
+            if (!name || !desc) { alert("Thiếu tên hoặc nội dung!"); return; }
+            const tags = tagsInp ? tagsInp.split(",").map(t => t.trim()) : ["Chưa phân loại"];
+
+            if (editingCharIndex !== null) {
+                characters[editingCharIndex].name = name; characters[editingCharIndex].tags = tags;
+                characters[editingCharIndex].backstory = desc; characters[editingCharIndex].link = link;
+                if(charImageBase64) characters[editingCharIndex].image = charImageBase64;
+            } else {
+                let newChar = { id: Date.now().toString(), name, tags, backstory: desc, link, image: charImageBase64, comments: [] };
+                characters.unshift(newChar);
+            }
+            saveData(); cancelEdit(); renderChars(); alert("Lưu thành công!");
+        }
+
+        function editChar(index) {
+            editingCharIndex = index; const c = characters[index];
+            document.getElementById("adminTitle").innerText = `✏️ Đang sửa: ${c.name}`;
+            document.getElementById("adminCancelBtn").classList.remove("hidden");
+            document.getElementById("newCharName").value = c.name; document.getElementById("newCharTags").value = c.tags.join(", ");
+            document.getElementById("newCharDesc").value = c.backstory; document.getElementById("newCharLink").value = c.link || "";
+            if (c.image) { charImageBase64 = c.image; document.getElementById('charImagePreview').src = c.image; document.getElementById('charImagePreview').style.display = 'block'; } 
+            else { charImageBase64 = ""; document.getElementById('charImagePreview').style.display = 'none'; }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function cancelEdit() {
+            editingCharIndex = null; charImageBase64 = "";
+            document.getElementById("adminTitle").innerText = "✨ Thêm Nhân Vật Mới (Mod) ✨";
+            document.getElementById("adminCancelBtn").classList.add("hidden");
+            document.getElementById("newCharName").value = ""; document.getElementById("newCharTags").value = "";
+            document.getElementById("newCharDesc").value = ""; document.getElementById("newCharLink").value = "";
+            document.getElementById("newCharImage").value = ""; document.getElementById('charImagePreview').style.display = 'none';
+        }
+
+        function deleteChar(index) {
+            if (isAdmin && confirm(`Xóa "${characters[index].name}"?`)) { characters.splice(index, 1); saveData(); renderChars(); }
+        }
+
+        /* ===== BÌNH LUẬN ===== */
+        function getCommenterInfo(nameInputId) {
+            let user = getCurrentUser();
+            let rawName = document.getElementById(nameInputId).value.trim();
+            let name = user ? user.displayName : (rawName || "Khách Ẩn Danh");
+            let avatar = user && user.avatar ? user.avatar : "";
+            return { name, avatar };
+        }
+
+        function addGeneralComment() {
+            const text = document.getElementById("genCommentInput").value.trim();
+            if (!text) return;
+            let info = getCommenterInfo("genCmtName");
+            generalComments.push({ name: info.name, avatar: info.avatar, text: text, time: new Date().toLocaleTimeString() });
+            document.getElementById("genCommentInput").value = ""; saveData(); renderGeneralComments();
+        }
+
+        function renderGeneralComments() {
+            const list = document.getElementById("genCommentList"); list.innerHTML = "";
+            generalComments.forEach((cmt, idx) => {
+                let delBtn = isAdmin ? `<button class="del-cmt-btn" onclick="delGenCmt(${idx})">✕</button>` : "";
+                let avtHtml = cmt.avatar ? `<img src="${cmt.avatar}" class="cmt-avatar">` : `<div class="cmt-avatar" style="display:flex;align-items:center;justify-content:center;font-size:16px;">👤</div>`;
+                list.innerHTML += `<div class="cmt-item">${avtHtml}<div class="cmt-content"><div class="cmt-name">${cmt.name} <span style="font-size:10px;color:gray;font-weight:normal;">${cmt.time||''}</span></div><div>${cmt.text}</div></div>${delBtn}</div>`;
+            });
+        }
+        function delGenCmt(idx) { if(isAdmin) { generalComments.splice(idx, 1); saveData(); renderGeneralComments(); } }
+
+        /* ===== CHI TIẾT CHAR ===== */
+        let currentCharIndex = null;
+        function openCharDetails(char, index) {
+            currentCharIndex = index;
+            document.getElementById("modalName").innerText = char.name;
+            document.getElementById("modalTags").innerText = "Tags: " + char.tags.join(", ");
+            document.getElementById("modalBackstory").innerText = char.backstory;
+            document.getElementById("modalLink").href = char.link || "#";
+            const imgEl = document.getElementById("modalImg");
+            if(char.image) { imgEl.src = char.image; imgEl.style.display = "block"; } else { imgEl.style.display = "none"; }
+            
+            let user = getCurrentUser();
+            if(user) { document.getElementById("charCmtName").value = user.displayName; document.getElementById("charCmtName").disabled = true; }
+            else { document.getElementById("charCmtName").value = ""; document.getElementById("charCmtName").disabled = false; }
+
+            renderModalComments(index);
+            document.getElementById("charModal").classList.remove("hidden");
+        }
+        function closeModal(id) { document.getElementById(id).classList.add("hidden"); }
+
+        function addCharComment() {
+            const text = document.getElementById("charCommentInput").value.trim();
+            if (!text || currentCharIndex === null) return;
+            if (!characters[currentCharIndex].comments) characters[currentCharIndex].comments = [];
+            let info = getCommenterInfo("charCmtName");
+            characters[currentCharIndex].comments.push({ name: info.name, avatar: info.avatar, text: text, time: new Date().toLocaleTimeString() });
+            document.getElementById("charCommentInput").value = ""; saveData(); renderModalComments(currentCharIndex);
+        }
+        
+        function renderModalComments(charIdx) {
+            if(charIdx === null) return;
+            const list = document.getElementById("modalCommentsList"); list.innerHTML = "";
+            const cmts = characters[charIdx].comments || [];
+            cmts.forEach((cmt, idx) => {
+                let delBtn = isAdmin ? `<button class="del-cmt-btn" onclick="delCharCmt(${charIdx}, ${idx})">✕</button>` : "";
+                let avtHtml = cmt.avatar ? `<img src="${cmt.avatar}" class="cmt-avatar">` : `<div class="cmt-avatar" style="display:flex;align-items:center;justify-content:center;font-size:16px;">👤</div>`;
+                list.innerHTML += `<div class="cmt-item">${avtHtml}<div class="cmt-content"><div class="cmt-name">${cmt.name||'Khách'} <span style="font-size:10px;color:gray;font-weight:normal;">${cmt.time||''}</span></div><div>${cmt.text||cmt}</div></div>${delBtn}</div>`;
+            });
+        }
+        function delCharCmt(charIdx, cmtIdx) { if(isAdmin) { characters[charIdx].comments.splice(cmtIdx, 1); saveData(); renderModalComments(charIdx); } }
+
+        /* ===== KHỞI ĐỘNG BAN ĐẦU ===== */
+        checkAuthUI();
+        renderChars();
+        renderGeneralComments();
+
+        /* ===== MINI GAMES ===== */
+        function randomChar() { if (characters.length > 0) openCharDetails(characters[Math.floor(Math.random() * characters.length)], Math.floor(Math.random() * characters.length)); else alert("Chưa có Char!");}
+        function drawWhisperQuote() { document.getElementById("whisperModal").classList.remove("hidden"); document.getElementById("whisperResult").innerHTML = `<div style="background:rgba(0,0,0,0.3); border-radius:10px; padding:15px; margin-top:15px; font-style:italic; color:var(--accent-star);">"Một ngày mệt mỏi rồi, lại đây ôm một cái nào..."</div>`; }
+        function drawTarotSpread() { document.getElementById("tarotModal").classList.remove("hidden"); document.getElementById("tarotResultContainer").innerHTML = `<div style="margin-top:15px; color:#ffeaa7;">(Tính năng đang hoàn thiện thêm...)</div>`; }
+        function calculateLove() { document.getElementById("loveModal").classList.remove("hidden"); document.getElementById("loveResultContainer").innerHTML = `<div style="margin-top:15px; color:#ff7675; font-size:24px; font-weight:bold;">${Math.floor(Math.random() * 41) + 60}%</div>`; }
+        function spinGacha() { document.getElementById("gachaModal").classList.remove("hidden"); document.getElementById("gachaResultContainer").innerHTML = `<div style="margin-top:15px; color:var(--accent-star);">Chúc mừng bạn quay trúng thẻ SSR!</div>`; }
+        function ask8Ball() { document.getElementById("ballModal").classList.remove("hidden"); document.getElementById("ballResultContainer").innerHTML = `<div style="margin-top:15px; color:var(--light-blue); font-weight:bold;">Vũ trụ trả lời là: CÓ!</div>`; }
+    </script>
+</body>
+</html>
